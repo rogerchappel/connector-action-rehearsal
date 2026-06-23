@@ -1,0 +1,21 @@
+{
+  "id": "crm-note-001",
+  "connector": "hubspot-notes",
+  "action": "crm_note",
+  "actor": "agent",
+  "target": "ExampleCo opportunity",
+  "reason": "Record a reviewed summary of implementation blockers.",
+  "payload": {
+    "title": "Implementation blockers",
+    "note": "Customer asked for a security questionnaire before pilot approval."
+  },
+  "evidence": [
+    "transcripts/exampleco-implementation.md",
+    "approvals/sales-ops-review.md"
+  ],
+  "rollback": "Delete the note or add a corrective CRM annotation.",
+  "approval": {
+    "required": true,
+    "approver": "sales operations"
+  }
+}

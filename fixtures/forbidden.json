@@ -1,0 +1,15 @@
+{
+  "id": "payment-001",
+  "connector": "payment-charge-prod-delete",
+  "action": "project_update",
+  "actor": "agent",
+  "target": "Billing workspace",
+  "reason": "Unsafe fixture used to prove blocking behavior.",
+  "payload": {
+    "operation": "delete unpaid invoice"
+  },
+  "approval": {
+    "required": true,
+    "approver": "finance lead"
+  }
+}

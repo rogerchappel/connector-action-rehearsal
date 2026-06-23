@@ -1,0 +1,18 @@
+{
+  "id": "followup-001",
+  "connector": "gmail-drafts",
+  "action": "meeting_followup",
+  "actor": "agent",
+  "target": "Jordan Example",
+  "reason": "Summarize agreed next steps after discovery call.",
+  "payload": {
+    "subject": "Discovery call follow-up",
+    "body": "Thanks for the discussion. Draft next steps are attached for review."
+  },
+  "evidence": [
+    "notes/discovery-call.md"
+  ],
+  "approval": {
+    "required": false
+  }
+}
