@@ -1,0 +1,35 @@
+{
+  "name": "connector-action-rehearsal",
+  "version": "0.1.0",
+  "description": "Local-first CLI and agent skill for rehearsing connector write actions before approval.",
+  "type": "module",
+  "bin": {
+    "connector-action-rehearsal": "./dist/src/cli.js"
+  },
+  "files": [
+    "dist",
+    "SKILL.md",
+    "README.md",
+    "docs",
+    "fixtures"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test dist/**/*.test.js",
+    "smoke": "npm run build && node dist/src/cli.js plan fixtures/meeting-followup.json --format markdown --fail-on forbidden",
+    "validate": "bash scripts/validate.sh"
+  },
+  "keywords": [
+    "agent-skills",
+    "connectors",
+    "dry-run",
+    "approval",
+    "cli"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.3"
+  }
+}
