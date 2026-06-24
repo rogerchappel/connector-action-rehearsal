@@ -28,6 +28,7 @@ export interface RehearsalPlan {
   approvalPrompt: string;
   rollback: string;
   evidence: string[];
+  checklist: ChecklistItem[];
   warnings: string[];
   validation: ValidationIssue[];
 }
@@ -36,4 +37,10 @@ export interface ValidationIssue {
   field: string;
   message: string;
   severity: "warning" | "error";
+}
+
+export interface ChecklistItem {
+  label: string;
+  status: "required" | "blocked" | "satisfied";
+  detail: string;
 }
