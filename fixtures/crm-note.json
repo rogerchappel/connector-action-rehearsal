@@ -7,7 +7,7 @@
   "reason": "Record a reviewed summary of implementation blockers.",
   "payload": {
     "title": "Implementation blockers",
-    "note": "Customer asked for a security questionnaire before pilot approval."
+    "body": "Customer asked for a security questionnaire before pilot approval."
   },
   "evidence": [
     "transcripts/exampleco-implementation.md",

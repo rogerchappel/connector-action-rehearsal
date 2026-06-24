@@ -1,0 +1,21 @@
+{
+  "id": "task-001",
+  "connector": "linear-tasks",
+  "action": "task_create",
+  "actor": "agent",
+  "target": "Implementation project",
+  "reason": "Capture the reviewed owner and due date for the next customer milestone.",
+  "payload": {
+    "title": "Send security questionnaire response",
+    "assignee": "implementation lead",
+    "due": "2026-06-30"
+  },
+  "evidence": [
+    "notes/discovery-call.md",
+    "approvals/project-manager-review.md"
+  ],
+  "approval": {
+    "required": true,
+    "approver": "project manager"
+  }
+}

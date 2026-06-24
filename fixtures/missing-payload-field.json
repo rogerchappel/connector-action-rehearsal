@@ -1,0 +1,18 @@
+{
+  "id": "bad-task-001",
+  "connector": "linear-tasks",
+  "action": "task_create",
+  "actor": "agent",
+  "target": "Implementation project",
+  "reason": "Demonstrate validation diagnostics for incomplete task fixtures.",
+  "payload": {
+    "title": "Send security questionnaire response"
+  },
+  "evidence": [
+    "notes/discovery-call.md"
+  ],
+  "approval": {
+    "required": true,
+    "approver": "project manager"
+  }
+}

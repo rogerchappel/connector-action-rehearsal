@@ -6,6 +6,7 @@
   "target": "Jordan Example",
   "reason": "Summarize agreed next steps after discovery call.",
   "payload": {
+    "recipient": "jordan@example.com",
     "subject": "Discovery call follow-up",
     "body": "Thanks for the discussion. Draft next steps are attached for review."
   },
