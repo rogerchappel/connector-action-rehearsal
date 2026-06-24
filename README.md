@@ -28,7 +28,8 @@ connector-action-rehearsal plan fixtures/crm-note.json --format json --fail-on f
   "target": "ExampleCo opportunity",
   "reason": "Record reviewed implementation blockers.",
   "payload": {
-    "title": "Implementation blockers"
+    "title": "Implementation blockers",
+    "body": "Customer asked for a security questionnaire before pilot approval."
   },
   "evidence": ["notes/example.md"],
   "approval": {
@@ -44,6 +45,18 @@ connector-action-rehearsal plan fixtures/crm-note.json --format json --fail-on f
 - `draft-only`: local or connector draft, no external send.
 - `write-after-approval`: external mutation requires explicit approval.
 - `forbidden`: route should not be executed.
+
+## Payload Validation
+
+The planner checks required payload fields for each supported action and includes validation diagnostics in Markdown and JSON output.
+
+- `crm_note`: `title`, `body`
+- `task_create`: `title`, `assignee`, `due`
+- `meeting_followup`: `recipient`, `subject`, `body`
+- `email_draft`: `recipient`, `subject`, `body`
+- `project_update`: `project`, `status`, `summary`
+
+Incomplete payloads are still rendered so reviewers can see the proposed action, but plans with validation errors must not be executed.
 
 ## Limitations
 
