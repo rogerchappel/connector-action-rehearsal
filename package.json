@@ -31,5 +31,13 @@
   "devDependencies": {
     "@types/node": "^20.14.10",
     "typescript": "^5.5.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/connector-action-rehearsal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/connector-action-rehearsal/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/connector-action-rehearsal#readme"
 }
