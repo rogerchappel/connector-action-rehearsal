@@ -1,4 +1,4 @@
-import type { ActionFixture, RehearsalPlan, Risk } from "./types.js";
+import type { ActionFixture, RehearsalPlan, Risk, ValidationIssue } from "./types.js";
 
 const RISK_BY_ACTION: Record<ActionFixture["action"], Risk> = {
   crm_note: "write-after-approval",
@@ -12,6 +12,7 @@ const FORBIDDEN_CONNECTOR_TERMS = ["prod-delete", "payment-charge", "credential-
 
 export function createPlan(fixture: ActionFixture): RehearsalPlan {
   const warnings: string[] = [];
+  const validation = validatePayload(fixture);
   let risk = RISK_BY_ACTION[fixture.action];
 
   if (FORBIDDEN_CONNECTOR_TERMS.some((term) => fixture.connector.includes(term))) {
@@ -21,6 +22,10 @@ export function createPlan(fixture: ActionFixture): RehearsalPlan {
 
   if (fixture.approval?.required === false && risk === "write-after-approval") {
     warnings.push("Write action fixture disabled approval; approval has been re-required in the plan.");
+  }
+
+  if (validation.some((issue) => issue.severity === "error")) {
+    warnings.push("Payload is missing required action fields; do not execute until the fixture is corrected.");
   }
 
   const approvalRequired = risk === "write-after-approval" || risk === "forbidden" || fixture.approval?.required === true;
@@ -38,8 +43,41 @@ export function createPlan(fixture: ActionFixture): RehearsalPlan {
     approvalPrompt: buildApprovalPrompt(fixture, risk, approvalRequired, rollback),
     rollback,
     evidence: fixture.evidence ?? [],
-    warnings
+    warnings,
+    validation
   };
+}
+
+function validatePayload(fixture: ActionFixture): ValidationIssue[] {
+  const requiredByAction: Record<ActionFixture["action"], string[]> = {
+    crm_note: ["title", "body"],
+    task_create: ["title", "assignee", "due"],
+    meeting_followup: ["recipient", "subject", "body"],
+    email_draft: ["recipient", "subject", "body"],
+    project_update: ["project", "status", "summary"]
+  };
+
+  const issues: ValidationIssue[] = [];
+  for (const field of requiredByAction[fixture.action]) {
+    const value = fixture.payload[field];
+    if (typeof value !== "string" || value.trim() === "") {
+      issues.push({
+        field: `payload.${field}`,
+        message: `Expected non-empty ${field} for ${fixture.action}.`,
+        severity: "error"
+      });
+    }
+  }
+
+  if (fixture.evidence === undefined || fixture.evidence.length === 0) {
+    issues.push({
+      field: "evidence",
+      message: "No evidence paths were supplied for reviewer traceability.",
+      severity: "warning"
+    });
+  }
+
+  return issues;
 }
 
 function buildApprovalPrompt(fixture: ActionFixture, risk: Risk, approvalRequired: boolean, rollback: string): string {

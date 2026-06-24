@@ -29,4 +29,11 @@ export interface RehearsalPlan {
   rollback: string;
   evidence: string[];
   warnings: string[];
+  validation: ValidationIssue[];
+}
+
+export interface ValidationIssue {
+  field: string;
+  message: string;
+  severity: "warning" | "error";
 }

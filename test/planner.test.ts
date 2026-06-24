@@ -11,6 +11,7 @@ test("creates approval-ready plan for CRM note", async () => {
   assert.equal(plan.risk, "write-after-approval");
   assert.equal(plan.approvalRequired, true);
   assert.match(plan.approvalPrompt, /Approve before writing/);
+  assert.deepEqual(plan.validation, []);
 });
 
 test("keeps meeting follow-up as draft-only", async () => {
@@ -18,6 +19,7 @@ test("keeps meeting follow-up as draft-only", async () => {
   const plan = createPlan(fixture);
   assert.equal(plan.risk, "draft-only");
   assert.equal(plan.approvalRequired, false);
+  assert.deepEqual(plan.validation, []);
 });
 
 test("blocks forbidden connector routes", async () => {
@@ -25,4 +27,20 @@ test("blocks forbidden connector routes", async () => {
   const plan = createPlan(fixture);
   assert.equal(plan.risk, "forbidden");
   assert.ok(plan.warnings.length > 0);
+  assert.ok(plan.validation.some((issue) => issue.field === "payload.project"));
+});
+
+test("validates task creation payloads", async () => {
+  const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/task-create.json"), "utf8")));
+  const plan = createPlan(fixture);
+  assert.equal(plan.risk, "write-after-approval");
+  assert.deepEqual(plan.validation, []);
+});
+
+test("reports incomplete payload fields without throwing", async () => {
+  const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/missing-payload-field.json"), "utf8")));
+  const plan = createPlan(fixture);
+  assert.equal(plan.risk, "write-after-approval");
+  assert.ok(plan.validation.some((issue) => issue.field === "payload.assignee"));
+  assert.ok(plan.warnings.some((warning) => warning.includes("Payload is missing")));
 });

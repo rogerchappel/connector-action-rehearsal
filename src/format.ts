@@ -46,6 +46,14 @@ export function formatMarkdown(plan: RehearsalPlan): string {
     lines.push("", "## Warnings", "", ...plan.warnings.map((item) => `- ${item}`));
   }
 
+  if (plan.validation.length > 0) {
+    lines.push("", "## Validation", "");
+    lines.push("| Severity | Field | Issue |", "|---|---|---|");
+    for (const issue of plan.validation) {
+      lines.push(`| ${issue.severity} | ${issue.field} | ${issue.message} |`);
+    }
+  }
+
   lines.push("");
   return lines.join("\n");
 }
