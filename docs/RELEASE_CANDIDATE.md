@@ -9,6 +9,7 @@ Ship.
 - Fixture schema covers supported V1 action types.
 - Planner creates deterministic risk, approval, payload preview, evidence, and rollback sections.
 - Action-specific payload validation catches incomplete task, CRM, follow-up, email draft, and project update fixtures.
+- CLI validation gate can fail CI on validation warnings or errors without executing connector actions.
 - Validation script runs check, test, smoke, and JSON output smoke.
 
 ## Verification Log
@@ -18,10 +19,11 @@ Ship.
 - `npm test` passed with 5 tests.
 - `npm run smoke` produced a Markdown plan for `fixtures/meeting-followup.json`.
 - `node dist/src/cli.js plan fixtures/crm-note.json --format json --fail-on forbidden` passed with `write-after-approval` risk.
+- `node dist/src/cli.js plan fixtures/missing-payload-field.json --fail-on-validation error` exits non-zero after printing diagnostics.
 
 ## Known Limits
 
 - This project rehearses connector writes; it does not execute them.
 - Risk rules are intentionally conservative and fixture-driven.
-- Validation errors are reported in plans but do not rewrite fixtures or call connectors.
+- Validation errors are reported in plans and can fail the CLI, but do not rewrite fixtures or call connectors.
 - Rollback notes are operator guidance, not executable automation.

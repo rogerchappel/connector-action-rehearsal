@@ -15,6 +15,7 @@ node dist/src/cli.js plan fixtures/meeting-followup.json --format markdown
 ```bash
 connector-action-rehearsal plan fixtures/meeting-followup.json --format markdown
 connector-action-rehearsal plan fixtures/crm-note.json --format json --fail-on forbidden
+connector-action-rehearsal plan fixtures/task-create.json --fail-on-validation warning
 ```
 
 ## Fixture Shape
@@ -57,6 +58,8 @@ The planner checks required payload fields for each supported action and include
 - `project_update`: `project`, `status`, `summary`
 
 Incomplete payloads are still rendered so reviewers can see the proposed action, but plans with validation errors must not be executed.
+
+Use `--fail-on-validation error` to make malformed fixtures fail CI while still printing the plan. Use `--fail-on-validation warning` for stricter release gates that require evidence paths. Use `--fail-on-validation off` only during exploratory authoring when an agent is still shaping the fixture.
 
 ## Limitations
 
