@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { spawnSync } from "node:child_process";
 import { createPlan } from "../src/planner.js";
 import { parseFixture } from "../src/schema.js";
 
@@ -43,4 +44,46 @@ test("reports incomplete payload fields without throwing", async () => {
   assert.equal(plan.risk, "write-after-approval");
   assert.ok(plan.validation.some((issue) => issue.field === "payload.assignee"));
   assert.ok(plan.warnings.some((warning) => warning.includes("Payload is missing")));
+});
+
+test("CLI can fail on validation errors before connector execution", () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      "dist/src/cli.js",
+      "plan",
+      "fixtures/missing-payload-field.json",
+      "--format",
+      "json",
+      "--fail-on",
+      "forbidden",
+      "--fail-on-validation",
+      "error"
+    ],
+    { encoding: "utf8" }
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /payload.assignee/);
+});
+
+test("CLI validation gate can be disabled for exploratory rehearsal", () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      "dist/src/cli.js",
+      "plan",
+      "fixtures/missing-payload-field.json",
+      "--format",
+      "json",
+      "--fail-on",
+      "forbidden",
+      "--fail-on-validation",
+      "off"
+    ],
+    { encoding: "utf8" }
+  );
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /payload.assignee/);
 });
