@@ -11,6 +11,7 @@ interface CliOptions {
   fixture?: string;
   format: "json" | "markdown";
   failOn: Risk;
+  failOnValidation: "off" | "warning" | "error";
 }
 
 async function main(argv: string[]): Promise<number> {
@@ -23,11 +24,17 @@ async function main(argv: string[]): Promise<number> {
   const fixture = parseFixture(JSON.parse(await readFile(resolve(options.fixture), "utf8")));
   const plan = createPlan(fixture);
   process.stdout.write(options.format === "json" ? formatJson(plan) : formatMarkdown(plan));
-  return shouldFail(plan.risk, options.failOn) ? 1 : 0;
+  return shouldFail(plan.risk, options.failOn) || shouldFailValidation(plan, options.failOnValidation) ? 1 : 0;
 }
 
 function parseArgs(argv: string[]): CliOptions {
-  const options: CliOptions = { command: argv[0], fixture: argv[1], format: "markdown", failOn: "forbidden" };
+  const options: CliOptions = {
+    command: argv[0],
+    fixture: argv[1],
+    format: "markdown",
+    failOn: "forbidden",
+    failOnValidation: "error"
+  };
   for (let index = 2; index < argv.length; index += 1) {
     const arg = argv[index];
     const next = argv[index + 1];
@@ -36,6 +43,9 @@ function parseArgs(argv: string[]): CliOptions {
       index += 1;
     } else if (arg === "--fail-on" && isRisk(next)) {
       options.failOn = next;
+      index += 1;
+    } else if (arg === "--fail-on-validation" && isValidationGate(next)) {
+      options.failOnValidation = next;
       index += 1;
     }
   }
@@ -51,8 +61,22 @@ function shouldFail(risk: Risk, failOn: Risk): boolean {
   return rank[risk] >= rank[failOn];
 }
 
+function isValidationGate(value: string | undefined): value is CliOptions["failOnValidation"] {
+  return value === "off" || value === "warning" || value === "error";
+}
+
+function shouldFailValidation(plan: { validation: Array<{ severity: "warning" | "error" }> }, gate: CliOptions["failOnValidation"]): boolean {
+  if (gate === "off") {
+    return false;
+  }
+  if (gate === "warning") {
+    return plan.validation.length > 0;
+  }
+  return plan.validation.some((issue) => issue.severity === "error");
+}
+
 function printHelp(): void {
-  process.stderr.write(`Usage: connector-action-rehearsal plan <fixture.json> [--format json|markdown] [--fail-on read-only|draft-only|write-after-approval|forbidden]\n`);
+  process.stderr.write(`Usage: connector-action-rehearsal plan <fixture.json> [--format json|markdown] [--fail-on read-only|draft-only|write-after-approval|forbidden] [--fail-on-validation off|warning|error]\n`);
 }
 
 main(process.argv.slice(2))
