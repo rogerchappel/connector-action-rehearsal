@@ -46,6 +46,12 @@ export function formatMarkdown(plan: RehearsalPlan): string {
     lines.push("", "## Warnings", "", ...plan.warnings.map((item) => `- ${item}`));
   }
 
+  lines.push("", "## Reviewer Checklist", "");
+  lines.push("| Status | Gate | Detail |", "|---|---|---|");
+  for (const item of plan.checklist) {
+    lines.push(`| ${item.status} | ${item.label} | ${item.detail} |`);
+  }
+
   if (plan.validation.length > 0) {
     lines.push("", "## Validation", "");
     lines.push("| Severity | Field | Issue |", "|---|---|---|");

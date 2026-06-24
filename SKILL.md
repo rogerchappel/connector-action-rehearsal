@@ -25,4 +25,4 @@ connector-action-rehearsal plan fixtures/crm-note.json --format json --fail-on f
 
 ## Validation
 
-Run `npm run validate`. Inspect the generated plan's `Validation` section and treat any `error` as a blocker for execution. Include the Markdown plan in handoffs or release-candidate PRs when connector behavior is part of a skill demo.
+Run `npm run validate`. Inspect the generated plan's `Validation` section and treat any `error` as a blocker for execution. Review the `Reviewer Checklist` section and resolve every `blocked` item before the action leaves rehearsal. Include the Markdown plan in handoffs or release-candidate PRs when connector behavior is part of a skill demo.

@@ -43,6 +43,7 @@ export function createPlan(fixture: ActionFixture): RehearsalPlan {
     approvalPrompt: buildApprovalPrompt(fixture, risk, approvalRequired, rollback),
     rollback,
     evidence: fixture.evidence ?? [],
+    checklist: buildChecklist(fixture, risk, approvalRequired, validation),
     warnings,
     validation
   };
@@ -89,6 +90,44 @@ function buildApprovalPrompt(fixture: ActionFixture, risk: Risk, approvalRequire
     return `Draft only: review the ${fixture.action} payload for ${fixture.target}. No external write is approved.`;
   }
   return `Approve before writing to ${fixture.connector}: ${fixture.action} for ${fixture.target}. Approver: ${approver}. Rollback note: ${rollback}`;
+}
+
+function buildChecklist(
+  fixture: ActionFixture,
+  risk: Risk,
+  approvalRequired: boolean,
+  validation: ValidationIssue[]
+): RehearsalPlan["checklist"] {
+  const hasEvidence = (fixture.evidence ?? []).length > 0;
+  const hasValidationErrors = validation.some((issue) => issue.severity === "error");
+
+  return [
+    {
+      label: "Payload validation",
+      status: hasValidationErrors ? "blocked" : "satisfied",
+      detail: hasValidationErrors ? "Fix validation errors before approval or execution." : "Required payload fields are present."
+    },
+    {
+      label: "Evidence trace",
+      status: hasEvidence ? "satisfied" : "required",
+      detail: hasEvidence ? "Evidence paths were supplied for reviewer traceability." : "Add evidence paths before this plan is used in a handoff."
+    },
+    {
+      label: "Approval boundary",
+      status: risk === "forbidden" ? "blocked" : approvalRequired ? "required" : "satisfied",
+      detail:
+        risk === "forbidden"
+          ? "Do not execute this route; redesign the connector action."
+          : approvalRequired
+            ? "Collect explicit human approval before any connector write."
+            : "No external write is approved by this draft-only plan."
+    },
+    {
+      label: "Rollback note",
+      status: fixture.rollback ? "satisfied" : "required",
+      detail: fixture.rollback ? "Fixture supplied a rollback note." : "Default rollback guidance was generated; confirm it matches the connector."
+    }
+  ];
 }
 
 function defaultRollback(risk: Risk): string {
