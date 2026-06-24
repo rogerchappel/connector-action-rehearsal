@@ -61,6 +61,17 @@ Incomplete payloads are still rendered so reviewers can see the proposed action,
 
 Use `--fail-on-validation error` to make malformed fixtures fail CI while still printing the plan. Use `--fail-on-validation warning` for stricter release gates that require evidence paths. Use `--fail-on-validation off` only during exploratory authoring when an agent is still shaping the fixture.
 
+## Reviewer Checklist
+
+Every plan includes a reviewer checklist with four gates:
+
+- payload validation
+- evidence trace
+- approval boundary
+- rollback note
+
+Checklist items are marked `satisfied`, `required`, or `blocked`. A `blocked` item means the connector action must not leave rehearsal. A `required` item means a reviewer needs to confirm or supply the missing context before execution in a separate approved workflow.
+
 ## Limitations
 
 This CLI does not execute connector actions, validate credentials, or guarantee rollback. It produces a clear artifact for review and approval.
