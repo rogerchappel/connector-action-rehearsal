@@ -18,7 +18,7 @@
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test dist/**/*.test.js",
-    "smoke": "npm run build && node dist/src/cli.js plan fixtures/meeting-followup.json --format markdown --fail-on forbidden",
+    "smoke": "node dist/src/cli.js plan fixtures/meeting-followup.json --format markdown --fail-on forbidden",
     "package:smoke": "npm run build && node scripts/package-smoke.mjs",
     "release:check": "bash scripts/validate.sh",
     "validate": "npm run release:check"
