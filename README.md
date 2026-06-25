@@ -16,6 +16,7 @@ node dist/src/cli.js plan fixtures/meeting-followup.json --format markdown
 connector-action-rehearsal plan fixtures/meeting-followup.json --format markdown
 connector-action-rehearsal plan fixtures/crm-note.json --format json --fail-on forbidden
 connector-action-rehearsal plan fixtures/task-create.json --fail-on-validation warning
+connector-action-rehearsal plan fixtures/project-update-missing-approver.json --fail-on-validation warning
 ```
 
 ## Fixture Shape
@@ -68,9 +69,12 @@ Every plan includes a reviewer checklist with four gates:
 - payload validation
 - evidence trace
 - approval boundary
+- approver trace
 - rollback note
 
 Checklist items are marked `satisfied`, `required`, or `blocked`. A `blocked` item means the connector action must not leave rehearsal. A `required` item means a reviewer needs to confirm or supply the missing context before execution in a separate approved workflow.
+
+Write-after-approval fixtures should name `approval.approver`. Missing approver metadata is a warning by default and can fail stricter CI gates with `--fail-on-validation warning`.
 
 ## Limitations
 

@@ -6,7 +6,7 @@ Use this skill when an agent has drafted a connector write action and needs a re
 
 - One local JSON fixture describing the intended connector action.
 - Evidence paths or notes that justify the action.
-- Optional approver name for write-after-approval actions.
+- Required approver name for write-after-approval handoffs.
 
 ## Side-Effect Boundaries
 
@@ -14,7 +14,7 @@ This skill is rehearsal-only. It reads local fixtures and prints approval plans.
 
 ## Approval Requirements
 
-Any `write-after-approval` action requires explicit user approval outside this CLI. Any `forbidden` action must be redesigned and must not be executed from the generated plan.
+Any `write-after-approval` action requires explicit user approval outside this CLI and should name `approval.approver` in the fixture. Any `forbidden` action must be redesigned and must not be executed from the generated plan.
 
 ## Examples
 
