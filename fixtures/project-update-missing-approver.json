@@ -1,0 +1,20 @@
+{
+  "id": "project-update-missing-approver",
+  "connector": "linear",
+  "action": "project_update",
+  "actor": "agent:release-coordinator",
+  "target": "ENG-42",
+  "reason": "Summarize release-candidate validation for the project tracker.",
+  "payload": {
+    "project": "Agent Skills",
+    "status": "ready for human review",
+    "summary": "Validation passed locally; release-candidate PR is ready for review."
+  },
+  "evidence": [
+    "docs/RELEASE_CANDIDATE.md",
+    "scripts/validate.sh"
+  ],
+  "approval": {
+    "required": true
+  }
+}

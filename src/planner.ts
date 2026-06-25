@@ -24,6 +24,14 @@ export function createPlan(fixture: ActionFixture): RehearsalPlan {
     warnings.push("Write action fixture disabled approval; approval has been re-required in the plan.");
   }
 
+  if (risk === "write-after-approval" && !fixture.approval?.approver) {
+    validation.push({
+      field: "approval.approver",
+      message: "Write-after-approval actions should name the responsible approver.",
+      severity: "warning"
+    });
+  }
+
   if (validation.some((issue) => issue.severity === "error")) {
     warnings.push("Payload is missing required action fields; do not execute until the fixture is corrected.");
   }
@@ -121,6 +129,14 @@ function buildChecklist(
           : approvalRequired
             ? "Collect explicit human approval before any connector write."
             : "No external write is approved by this draft-only plan."
+    },
+    {
+      label: "Approver trace",
+      status: risk === "write-after-approval" && !fixture.approval?.approver ? "required" : "satisfied",
+      detail:
+        risk === "write-after-approval" && !fixture.approval?.approver
+          ? "Name the responsible approver before handing off this write plan."
+          : "Approver metadata is either present or not required for this route."
     },
     {
       label: "Rollback note",

@@ -41,6 +41,14 @@ test("validates task creation payloads", async () => {
   assert.deepEqual(plan.validation, []);
 });
 
+test("requires approver metadata for write-after-approval handoffs", async () => {
+  const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/project-update-missing-approver.json"), "utf8")));
+  const plan = createPlan(fixture);
+  assert.equal(plan.risk, "write-after-approval");
+  assert.ok(plan.validation.some((issue) => issue.field === "approval.approver" && issue.severity === "warning"));
+  assert.ok(plan.checklist.some((item) => item.label === "Approver trace" && item.status === "required"));
+});
+
 test("reports incomplete payload fields without throwing", async () => {
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/missing-payload-field.json"), "utf8")));
   const plan = createPlan(fixture);
