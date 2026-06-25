@@ -11,14 +11,17 @@
     "SKILL.md",
     "README.md",
     "docs",
-    "fixtures"
+    "fixtures",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test dist/**/*.test.js",
-    "smoke": "npm run build && node dist/src/cli.js plan fixtures/meeting-followup.json --format markdown --fail-on forbidden",
-    "validate": "bash scripts/validate.sh"
+    "smoke": "node dist/src/cli.js plan fixtures/meeting-followup.json --format markdown --fail-on forbidden",
+    "package:smoke": "npm run build && node scripts/package-smoke.mjs",
+    "release:check": "bash scripts/validate.sh",
+    "validate": "npm run release:check"
   },
   "keywords": [
     "agent-skills",
@@ -31,5 +34,13 @@
   "devDependencies": {
     "@types/node": "^20.14.10",
     "typescript": "^5.5.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/connector-action-rehearsal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/connector-action-rehearsal/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/connector-action-rehearsal#readme"
 }
