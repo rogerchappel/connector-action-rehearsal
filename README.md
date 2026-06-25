@@ -95,4 +95,4 @@ npm run release:check
 
 `npm run package:smoke` builds the package, dry-runs `npm pack`, and asserts
 that the CLI, planner runtime, fixtures, skill file, docs, README, and license
-are present in the tarball.
+and security policy are present in the tarball.
