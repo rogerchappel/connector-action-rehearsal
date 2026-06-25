@@ -6,8 +6,7 @@
 
 ```bash
 npm install
-npm run build
-node dist/src/cli.js plan fixtures/meeting-followup.json --format markdown
+npm run release:check
 ```
 
 ## CLI
@@ -79,3 +78,17 @@ This CLI does not execute connector actions, validate credentials, or guarantee 
 ## Safety Notes
 
 Keep live connector writes in a separate approved workflow. Treat generated plans as evidence, not permission.
+
+## Release Verification
+
+```bash
+npm run check
+npm test
+npm run smoke
+npm run package:smoke
+npm run release:check
+```
+
+`npm run package:smoke` builds the package, dry-runs `npm pack`, and asserts
+that the CLI, planner runtime, fixtures, skill file, docs, README, and license
+are present in the tarball.
