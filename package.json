@@ -13,7 +13,8 @@
     "docs",
     "fixtures",
     "LICENSE",
-    "SECURITY.md"
+    "SECURITY.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -22,7 +23,8 @@
     "smoke": "node dist/src/cli.js plan fixtures/meeting-followup.json --format markdown --fail-on forbidden",
     "package:smoke": "npm run build && node scripts/package-smoke.mjs",
     "release:check": "bash scripts/validate.sh",
-    "validate": "npm run release:check"
+    "validate": "npm run release:check",
+    "lint": "npm run check"
   },
   "keywords": [
     "agent-skills",

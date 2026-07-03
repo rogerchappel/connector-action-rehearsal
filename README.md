@@ -86,6 +86,7 @@ Keep live connector writes in a separate approved workflow. Treat generated plan
 ## Release Verification
 
 ```bash
+npm run lint
 npm run check
 npm test
 npm run smoke
