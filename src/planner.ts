@@ -1,6 +1,7 @@
 import type { ActionFixture, RehearsalPlan, Risk, ValidationIssue } from "./types.js";
 
 const RISK_BY_ACTION: Record<ActionFixture["action"], Risk> = {
+  contact_lookup: "read-only",
   crm_note: "write-after-approval",
   task_create: "write-after-approval",
   meeting_followup: "draft-only",
@@ -59,6 +60,7 @@ export function createPlan(fixture: ActionFixture): RehearsalPlan {
 
 function validatePayload(fixture: ActionFixture): ValidationIssue[] {
   const requiredByAction: Record<ActionFixture["action"], string[]> = {
+    contact_lookup: ["query"],
     crm_note: ["title", "body"],
     task_create: ["title", "assignee", "due"],
     meeting_followup: ["recipient", "subject", "body"],
@@ -95,7 +97,9 @@ function buildApprovalPrompt(fixture: ActionFixture, risk: Risk, approvalRequire
     return `Do not execute ${fixture.action} on ${fixture.connector}. Ask ${approver} to choose a safer route. Rollback note: ${rollback}`;
   }
   if (!approvalRequired) {
-    return `Draft only: review the ${fixture.action} payload for ${fixture.target}. No external write is approved.`;
+    return risk === "read-only"
+      ? `Read only: inspect ${fixture.connector} for ${fixture.target}. No external write is approved.`
+      : `Draft only: review the ${fixture.action} payload for ${fixture.target}. No external write is approved.`;
   }
   return `Approve before writing to ${fixture.connector}: ${fixture.action} for ${fixture.target}. Approver: ${approver}. Rollback note: ${rollback}`;
 }
@@ -128,7 +132,9 @@ function buildChecklist(
           ? "Do not execute this route; redesign the connector action."
           : approvalRequired
             ? "Collect explicit human approval before any connector write."
-            : "No external write is approved by this draft-only plan."
+            : risk === "read-only"
+              ? "Read-only connector inspection does not require write approval."
+              : "No external write is approved by this draft-only plan."
     },
     {
       label: "Approver trace",
@@ -147,6 +153,9 @@ function buildChecklist(
 }
 
 function defaultRollback(risk: Risk): string {
+  if (risk === "read-only") {
+    return "No rollback needed; the plan only inspects connector data.";
+  }
   if (risk === "draft-only") {
     return "Discard the draft; no external record has been changed.";
   }

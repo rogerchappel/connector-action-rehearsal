@@ -8,7 +8,8 @@ Ship.
 
 - Fixture schema covers supported V1 action types.
 - Planner creates deterministic risk, approval, payload preview, evidence, and rollback sections.
-- Action-specific payload validation catches incomplete task, CRM, follow-up, email draft, and project update fixtures.
+- Contact lookup fixtures are classified as `read-only` with no write approval requirement.
+- Action-specific payload validation catches incomplete contact lookup, task, CRM, follow-up, email draft, and project update fixtures.
 - CLI validation gate can fail CI on validation warnings or errors without executing connector actions.
 - Reviewer checklist marks payload validation, evidence trace, approval boundary, approver trace, and rollback gates as `satisfied`, `required`, or `blocked`.
 - Write-after-approval fixtures now warn when `approval.approver` is missing, giving handoffs an explicit human owner before any external write workflow.
@@ -25,6 +26,8 @@ Ship.
 - `node dist/src/cli.js plan fixtures/crm-note.json --format json --fail-on forbidden` passed with `write-after-approval` risk.
 - `node dist/src/cli.js plan fixtures/missing-payload-field.json --fail-on-validation error` exits non-zero after printing diagnostics.
 - `node dist/src/cli.js plan fixtures/project-update-missing-approver.json --fail-on-validation warning` exits non-zero after printing the missing approver warning.
+- `npm test` passed with 9 tests on 2026-07-05 after adding read-only contact lookup rehearsal.
+- `npm run validate` passed on 2026-07-05.
 
 ## Known Limits
 

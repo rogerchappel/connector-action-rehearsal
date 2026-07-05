@@ -1,6 +1,6 @@
 import type { ActionFixture, ActionType } from "./types.js";
 
-const ACTIONS = new Set<ActionType>(["crm_note", "task_create", "meeting_followup", "email_draft", "project_update"]);
+const ACTIONS = new Set<ActionType>(["contact_lookup", "crm_note", "task_create", "meeting_followup", "email_draft", "project_update"]);
 
 export function parseFixture(value: unknown): ActionFixture {
   if (!isRecord(value)) {
