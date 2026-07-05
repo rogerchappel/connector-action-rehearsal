@@ -1,6 +1,6 @@
 # Connector Action Rehearsal
 
-Use this skill when an agent has drafted a connector write action and needs a reviewable dry-run plan before touching an external system.
+Use this skill when an agent has drafted a connector lookup, draft, or write action and needs a reviewable dry-run plan before touching an external system.
 
 ## Required Inputs
 
@@ -20,6 +20,7 @@ Any `write-after-approval` action requires explicit user approval outside this C
 
 ```bash
 connector-action-rehearsal plan fixtures/meeting-followup.json --format markdown
+connector-action-rehearsal plan fixtures/contact-lookup.json --fail-on write-after-approval
 connector-action-rehearsal plan fixtures/crm-note.json --format json --fail-on forbidden
 ```
 

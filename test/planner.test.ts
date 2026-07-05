@@ -25,6 +25,17 @@ test("keeps meeting follow-up as draft-only", async () => {
   assert.deepEqual(plan.validation, []);
 });
 
+test("keeps contact lookup read-only", async () => {
+  const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/contact-lookup.json"), "utf8")));
+  const plan = createPlan(fixture);
+  assert.equal(plan.risk, "read-only");
+  assert.equal(plan.approvalRequired, false);
+  assert.match(plan.approvalPrompt, /Read only/);
+  assert.match(plan.rollback, /No rollback needed/);
+  assert.ok(plan.checklist.some((item) => item.label === "Approval boundary" && item.status === "satisfied"));
+  assert.deepEqual(plan.validation, []);
+});
+
 test("blocks forbidden connector routes", async () => {
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/forbidden.json"), "utf8")));
   const plan = createPlan(fixture);

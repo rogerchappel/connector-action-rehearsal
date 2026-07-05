@@ -1,4 +1,4 @@
-export type ActionType = "crm_note" | "task_create" | "meeting_followup" | "email_draft" | "project_update";
+export type ActionType = "contact_lookup" | "crm_note" | "task_create" | "meeting_followup" | "email_draft" | "project_update";
 export type Risk = "read-only" | "draft-only" | "write-after-approval" | "forbidden";
 
 export interface ActionFixture {

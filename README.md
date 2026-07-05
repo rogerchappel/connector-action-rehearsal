@@ -13,6 +13,7 @@ npm run release:check
 
 ```bash
 connector-action-rehearsal plan fixtures/meeting-followup.json --format markdown
+connector-action-rehearsal plan fixtures/contact-lookup.json --fail-on write-after-approval
 connector-action-rehearsal plan fixtures/crm-note.json --format json --fail-on forbidden
 connector-action-rehearsal plan fixtures/task-create.json --fail-on-validation warning
 connector-action-rehearsal plan fixtures/project-update-missing-approver.json --fail-on-validation warning
@@ -51,6 +52,7 @@ connector-action-rehearsal plan fixtures/project-update-missing-approver.json --
 
 The planner checks required payload fields for each supported action and includes validation diagnostics in Markdown and JSON output.
 
+- `contact_lookup`: `query`
 - `crm_note`: `title`, `body`
 - `task_create`: `title`, `assignee`, `due`
 - `meeting_followup`: `recipient`, `subject`, `body`

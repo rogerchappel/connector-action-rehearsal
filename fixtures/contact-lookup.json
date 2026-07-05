@@ -1,0 +1,17 @@
+{
+  "id": "contact-lookup-001",
+  "connector": "crm-sandbox",
+  "action": "contact_lookup",
+  "actor": "agent",
+  "target": "Taylor Example",
+  "reason": "Confirm whether a follow-up contact already exists before drafting any write action.",
+  "payload": {
+    "query": "taylor@example.test"
+  },
+  "evidence": [
+    "docs/ORCHESTRATION.md"
+  ],
+  "approval": {
+    "required": false
+  }
+}
