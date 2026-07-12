@@ -41,18 +41,21 @@ export function createPlan(fixture: ActionFixture): RehearsalPlan {
   const rollback = fixture.rollback ?? defaultRollback(risk);
   const summary = `${fixture.actor} proposes ${fixture.action} on ${fixture.connector} for ${fixture.target}: ${fixture.reason}`;
 
+  const checklist = buildChecklist(fixture, risk, approvalRequired, validation);
+
   return {
     id: fixture.id,
     connector: fixture.connector,
     action: fixture.action,
     risk,
     approvalRequired,
+    decision: decide(risk, approvalRequired, validation),
     summary,
     payloadPreview: fixture.payload,
     approvalPrompt: buildApprovalPrompt(fixture, risk, approvalRequired, rollback),
     rollback,
     evidence: fixture.evidence ?? [],
-    checklist: buildChecklist(fixture, risk, approvalRequired, validation),
+    checklist,
     warnings,
     validation
   };
@@ -163,4 +166,14 @@ function defaultRollback(risk: Risk): string {
     return "No execution allowed; keep fixture as evidence and redesign the route.";
   }
   return "Use the connector's native audit log to remove or annotate the created record.";
+}
+
+function decide(risk: Risk, approvalRequired: boolean, validation: ValidationIssue[]): RehearsalPlan["decision"] {
+  if (risk === "forbidden" || validation.some((issue) => issue.severity === "error")) {
+    return "blocked";
+  }
+  if (approvalRequired || validation.some((issue) => issue.severity === "warning")) {
+    return "approval-required";
+  }
+  return "safe-to-review";
 }

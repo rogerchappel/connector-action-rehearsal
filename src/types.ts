@@ -23,6 +23,7 @@ export interface RehearsalPlan {
   action: ActionType;
   risk: Risk;
   approvalRequired: boolean;
+  decision: "safe-to-review" | "approval-required" | "blocked";
   summary: string;
   payloadPreview: Record<string, unknown>;
   approvalPrompt: string;

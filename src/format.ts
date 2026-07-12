@@ -12,6 +12,7 @@ export function formatMarkdown(plan: RehearsalPlan): string {
     `Connector: ${plan.connector}`,
     `Action: ${plan.action}`,
     `Risk: ${plan.risk}`,
+    `Decision: ${plan.decision}`,
     `Approval required: ${plan.approvalRequired ? "yes" : "no"}`,
     "",
     "## Summary",
