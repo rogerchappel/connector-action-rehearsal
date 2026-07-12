@@ -11,6 +11,7 @@ test("creates approval-ready plan for CRM note", async () => {
   const plan = createPlan(fixture);
   assert.equal(plan.risk, "write-after-approval");
   assert.equal(plan.approvalRequired, true);
+  assert.equal(plan.decision, "approval-required");
   assert.match(plan.approvalPrompt, /Approve before writing/);
   assert.ok(plan.checklist.some((item) => item.label === "Approval boundary" && item.status === "required"));
   assert.deepEqual(plan.validation, []);
@@ -21,6 +22,7 @@ test("keeps meeting follow-up as draft-only", async () => {
   const plan = createPlan(fixture);
   assert.equal(plan.risk, "draft-only");
   assert.equal(plan.approvalRequired, false);
+  assert.equal(plan.decision, "safe-to-review");
   assert.ok(plan.checklist.some((item) => item.label === "Approval boundary" && item.status === "satisfied"));
   assert.deepEqual(plan.validation, []);
 });
@@ -30,6 +32,7 @@ test("keeps contact lookup read-only", async () => {
   const plan = createPlan(fixture);
   assert.equal(plan.risk, "read-only");
   assert.equal(plan.approvalRequired, false);
+  assert.equal(plan.decision, "safe-to-review");
   assert.match(plan.approvalPrompt, /Read only/);
   assert.match(plan.rollback, /No rollback needed/);
   assert.ok(plan.checklist.some((item) => item.label === "Approval boundary" && item.status === "satisfied"));
@@ -40,6 +43,7 @@ test("blocks forbidden connector routes", async () => {
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/forbidden.json"), "utf8")));
   const plan = createPlan(fixture);
   assert.equal(plan.risk, "forbidden");
+  assert.equal(plan.decision, "blocked");
   assert.ok(plan.warnings.length > 0);
   assert.ok(plan.validation.some((issue) => issue.field === "payload.project"));
   assert.ok(plan.checklist.some((item) => item.status === "blocked"));
@@ -49,6 +53,7 @@ test("validates task creation payloads", async () => {
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/task-create.json"), "utf8")));
   const plan = createPlan(fixture);
   assert.equal(plan.risk, "write-after-approval");
+  assert.equal(plan.decision, "approval-required");
   assert.deepEqual(plan.validation, []);
 });
 
@@ -56,6 +61,7 @@ test("requires approver metadata for write-after-approval handoffs", async () =>
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/project-update-missing-approver.json"), "utf8")));
   const plan = createPlan(fixture);
   assert.equal(plan.risk, "write-after-approval");
+  assert.equal(plan.decision, "approval-required");
   assert.ok(plan.validation.some((issue) => issue.field === "approval.approver" && issue.severity === "warning"));
   assert.ok(plan.checklist.some((item) => item.label === "Approver trace" && item.status === "required"));
 });
@@ -64,6 +70,7 @@ test("reports incomplete payload fields without throwing", async () => {
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/missing-payload-field.json"), "utf8")));
   const plan = createPlan(fixture);
   assert.equal(plan.risk, "write-after-approval");
+  assert.equal(plan.decision, "blocked");
   assert.ok(plan.validation.some((issue) => issue.field === "payload.assignee"));
   assert.ok(plan.warnings.some((warning) => warning.includes("Payload is missing")));
   assert.ok(plan.checklist.some((item) => item.label === "Payload validation" && item.status === "blocked"));
