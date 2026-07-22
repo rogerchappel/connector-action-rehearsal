@@ -15,8 +15,9 @@ export function createPlan(fixture: ActionFixture): RehearsalPlan {
   const warnings: string[] = [];
   const validation = validatePayload(fixture);
   let risk = RISK_BY_ACTION[fixture.action];
+  const normalizedConnector = fixture.connector.toLowerCase();
 
-  if (FORBIDDEN_CONNECTOR_TERMS.some((term) => fixture.connector.includes(term))) {
+  if (FORBIDDEN_CONNECTOR_TERMS.some((term) => normalizedConnector.includes(term))) {
     risk = "forbidden";
     warnings.push("Connector route matches a forbidden live-write surface.");
   }

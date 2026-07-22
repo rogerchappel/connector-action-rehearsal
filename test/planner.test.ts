@@ -49,6 +49,16 @@ test("blocks forbidden connector routes", async () => {
   assert.ok(plan.checklist.some((item) => item.status === "blocked"));
 });
 
+test("blocks uppercase and mixed-case forbidden connector routes", async () => {
+  const baseFixture = JSON.parse(await readFile(resolve("fixtures/project-update-missing-approver.json"), "utf8"));
+
+  for (const connector of ["PAYMENT-CHARGE-PROD-DELETE", "internal-Credential-Store-route"]) {
+    const plan = createPlan(parseFixture({ ...baseFixture, connector }));
+    assert.equal(plan.risk, "forbidden", connector);
+    assert.equal(plan.decision, "blocked", connector);
+  }
+});
+
 test("validates task creation payloads", async () => {
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/task-create.json"), "utf8")));
   const plan = createPlan(fixture);
