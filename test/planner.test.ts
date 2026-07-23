@@ -6,6 +6,10 @@ import { spawnSync } from "node:child_process";
 import { createPlan } from "../src/planner.js";
 import { parseFixture } from "../src/schema.js";
 
+function runCli(...args: string[]) {
+  return spawnSync(process.execPath, ["dist/src/cli.js", ...args], { encoding: "utf8" });
+}
+
 test("creates approval-ready plan for CRM note", async () => {
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/crm-note.json"), "utf8")));
   const plan = createPlan(fixture);
@@ -126,4 +130,73 @@ test("CLI validation gate can be disabled for exploratory rehearsal", () => {
 
   assert.equal(result.status, 0);
   assert.match(result.stdout, /payload.assignee/);
+});
+
+test("CLI rejects malformed options instead of silently using permissive defaults", () => {
+  const malformedOptions = [
+    ["--fail-on", "write-after-approva"],
+    ["--fail-on"],
+    ["--fail-on-validation", "warn"],
+    ["--fail-on-validation"],
+    ["--format", "yaml"],
+    ["--format"],
+    ["--unknown-option"],
+    ["unexpected-argument"]
+  ];
+
+  for (const option of malformedOptions) {
+    const result = runCli("plan", "fixtures/crm-note.json", ...option);
+    assert.equal(result.status, 2, option.join(" "));
+    assert.equal(result.stdout, "", option.join(" "));
+    assert.match(result.stderr, /Usage:/, option.join(" "));
+  }
+});
+
+test("CLI preserves every documented risk threshold", () => {
+  const expectedStatus = new Map([
+    ["read-only", 1],
+    ["draft-only", 1],
+    ["write-after-approval", 1],
+    ["forbidden", 0]
+  ]);
+
+  for (const [threshold, status] of expectedStatus) {
+    const result = runCli(
+      "plan",
+      "fixtures/crm-note.json",
+      "--format",
+      "json",
+      "--fail-on",
+      threshold,
+      "--fail-on-validation",
+      "off"
+    );
+    assert.equal(result.status, status, threshold);
+    assert.match(result.stdout, /"risk": "write-after-approval"/, threshold);
+    assert.equal(result.stderr, "", threshold);
+  }
+});
+
+test("CLI preserves every documented validation gate", () => {
+  const expectedStatus = new Map([
+    ["off", 0],
+    ["warning", 1],
+    ["error", 0]
+  ]);
+
+  for (const [gate, status] of expectedStatus) {
+    const result = runCli(
+      "plan",
+      "fixtures/project-update-missing-approver.json",
+      "--format",
+      "json",
+      "--fail-on",
+      "forbidden",
+      "--fail-on-validation",
+      gate
+    );
+    assert.equal(result.status, status, gate);
+    assert.match(result.stdout, /"severity": "warning"/, gate);
+    assert.equal(result.stderr, "", gate);
+  }
 });
