@@ -104,7 +104,12 @@ function shouldFailValidation(plan: { validation: Array<{ severity: "warning" | 
 }
 
 function printHelp(): void {
-  process.stderr.write(`Usage: connector-action-rehearsal plan <fixture.json> [--format json|markdown] [--fail-on read-only|draft-only|write-after-approval|forbidden] [--fail-on-validation off|warning|error]\n`);
+  process.stderr.write(
+    "Usage: connector-action-rehearsal plan <fixture.json> [--format json|markdown] " +
+      "[--fail-on read-only|draft-only|write-after-approval|forbidden] " +
+      "[--fail-on-validation off|warning|error]\n" +
+      "Unknown options and missing or invalid option values are usage errors (exit 2).\n"
+  );
 }
 
 main(process.argv.slice(2))

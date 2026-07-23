@@ -19,6 +19,11 @@ connector-action-rehearsal plan fixtures/task-create.json --fail-on-validation w
 connector-action-rehearsal plan fixtures/project-update-missing-approver.json --fail-on-validation warning
 ```
 
+The CLI fails closed on malformed arguments. Unknown options, missing option
+values, and values outside the choices shown above print an error and usage
+help to stderr, produce no plan, and exit with status `2`. This prevents a
+misspelled CI gate from silently falling back to a less restrictive default.
+
 ## Fixture Shape
 
 ```json
