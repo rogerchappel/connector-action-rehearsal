@@ -14,8 +14,21 @@ interface CliOptions {
   failOnValidation: "off" | "warning" | "error";
 }
 
+class CliUsageError extends Error {}
+
 async function main(argv: string[]): Promise<number> {
-  const options = parseArgs(argv);
+  let options: CliOptions;
+  try {
+    options = parseArgs(argv);
+  } catch (error: unknown) {
+    if (!(error instanceof CliUsageError)) {
+      throw error;
+    }
+    process.stderr.write(`Error: ${error.message}\n`);
+    printHelp();
+    return 2;
+  }
+
   if (options.command !== "plan" || !options.fixture) {
     printHelp();
     return 2;
@@ -38,22 +51,34 @@ function parseArgs(argv: string[]): CliOptions {
   for (let index = 2; index < argv.length; index += 1) {
     const arg = argv[index];
     const next = argv[index + 1];
-    if (arg === "--format" && (next === "json" || next === "markdown")) {
-      options.format = next;
+    if (arg === "--format") {
+      options.format = parseFormat(next);
       index += 1;
-    } else if (arg === "--fail-on" && isRisk(next)) {
-      options.failOn = next;
+    } else if (arg === "--fail-on") {
+      options.failOn = parseRisk(next);
       index += 1;
-    } else if (arg === "--fail-on-validation" && isValidationGate(next)) {
-      options.failOnValidation = next;
+    } else if (arg === "--fail-on-validation") {
+      options.failOnValidation = parseValidationGate(next);
       index += 1;
+    } else {
+      throw new CliUsageError(`Unknown argument: ${arg}`);
     }
   }
   return options;
 }
 
-function isRisk(value: string | undefined): value is Risk {
-  return value === "read-only" || value === "draft-only" || value === "write-after-approval" || value === "forbidden";
+function parseFormat(value: string | undefined): CliOptions["format"] {
+  if (value === "json" || value === "markdown") {
+    return value;
+  }
+  throw new CliUsageError(`Invalid value for --format: ${value ?? "<missing>"}`);
+}
+
+function parseRisk(value: string | undefined): Risk {
+  if (value === "read-only" || value === "draft-only" || value === "write-after-approval" || value === "forbidden") {
+    return value;
+  }
+  throw new CliUsageError(`Invalid value for --fail-on: ${value ?? "<missing>"}`);
 }
 
 function shouldFail(risk: Risk, failOn: Risk): boolean {
@@ -61,8 +86,11 @@ function shouldFail(risk: Risk, failOn: Risk): boolean {
   return rank[risk] >= rank[failOn];
 }
 
-function isValidationGate(value: string | undefined): value is CliOptions["failOnValidation"] {
-  return value === "off" || value === "warning" || value === "error";
+function parseValidationGate(value: string | undefined): CliOptions["failOnValidation"] {
+  if (value === "off" || value === "warning" || value === "error") {
+    return value;
+  }
+  throw new CliUsageError(`Invalid value for --fail-on-validation: ${value ?? "<missing>"}`);
 }
 
 function shouldFailValidation(plan: { validation: Array<{ severity: "warning" | "error" }> }, gate: CliOptions["failOnValidation"]): boolean {
