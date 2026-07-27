@@ -50,11 +50,11 @@ function parseEvidence(value: Record<string, unknown>): string[] {
   return value.evidence.map((entry, index) => asString(entry, `evidence[${index}]`));
 }
 
-function parseOptionalString(value: Record<string, unknown>, key: string): string | undefined {
+function parseOptionalString(value: Record<string, unknown>, key: string, field = key): string | undefined {
   if (!(key in value)) {
     return undefined;
   }
-  return asString(value[key], key);
+  return asString(value[key], field);
 }
 
 function parseApproval(value: Record<string, unknown>): ActionFixture["approval"] {
@@ -70,7 +70,7 @@ function parseApproval(value: Record<string, unknown>): ActionFixture["approval"
 
   return {
     required: value.approval.required,
-    approver: parseOptionalString(value.approval, "approver")
+    approver: parseOptionalString(value.approval, "approver", "approval.approver")
   };
 }
 
