@@ -10,6 +10,77 @@ function runCli(...args: string[]) {
   return spawnSync(process.execPath, ["dist/src/cli.js", ...args], { encoding: "utf8" });
 }
 
+const minimalFixture = {
+  id: "fixture-001",
+  connector: "example-connector",
+  action: "contact_lookup",
+  actor: "agent",
+  target: "ExampleCo",
+  reason: "Verify the nested fixture shape.",
+  payload: { query: "ExampleCo" }
+};
+
+test("accepts omitted optional fixture metadata", () => {
+  const fixture = parseFixture(minimalFixture);
+  assert.deepEqual(fixture.evidence, []);
+  assert.equal(fixture.rollback, undefined);
+  assert.equal(fixture.approval, undefined);
+});
+
+test("preserves valid nested fixture metadata", () => {
+  const fixture = parseFixture({
+    ...minimalFixture,
+    evidence: [" notes/example.md "],
+    rollback: " Remove the draft. ",
+    approval: { required: false, approver: " reviewer " }
+  });
+
+  assert.deepEqual(fixture.evidence, [" notes/example.md "]);
+  assert.equal(fixture.rollback, " Remove the draft. ");
+  assert.deepEqual(fixture.approval, { required: false, approver: " reviewer " });
+});
+
+test("rejects malformed evidence metadata", () => {
+  for (const evidence of [null, "notes/example.md", 42, {}, [null], [42], [{}], [""], ["   "]]) {
+    assert.throws(
+      () => parseFixture({ ...minimalFixture, evidence }),
+      /Fixture field evidence(?:\[\d+\])? must be (?:an array of non-empty strings|a non-empty string)\./
+    );
+  }
+});
+
+test("rejects malformed rollback metadata", () => {
+  for (const rollback of [null, false, 42, {}, [], ["undo"], "", "   "]) {
+    assert.throws(
+      () => parseFixture({ ...minimalFixture, rollback }),
+      /Fixture field rollback must be a non-empty string\./
+    );
+  }
+});
+
+test("rejects malformed approval metadata", () => {
+  for (const approval of [null, false, 42, "required", []]) {
+    assert.throws(
+      () => parseFixture({ ...minimalFixture, approval }),
+      /Fixture field approval must be an object\./
+    );
+  }
+
+  for (const required of [undefined, null, 0, 1, "false", {}, []]) {
+    assert.throws(
+      () => parseFixture({ ...minimalFixture, approval: { required } }),
+      /Fixture field approval\.required must be a boolean\./
+    );
+  }
+
+  for (const approver of [null, false, 42, {}, [], "", "   "]) {
+    assert.throws(
+      () => parseFixture({ ...minimalFixture, approval: { required: true, approver } }),
+      /Fixture field approval\.approver must be a non-empty string\./
+    );
+  }
+});
+
 test("creates approval-ready plan for CRM note", async () => {
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/crm-note.json"), "utf8")));
   const plan = createPlan(fixture);

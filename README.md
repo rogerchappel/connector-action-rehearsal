@@ -39,12 +39,19 @@ misspelled CI gate from silently falling back to a less restrictive default.
     "body": "Customer asked for a security questionnaire before pilot approval."
   },
   "evidence": ["notes/example.md"],
+  "rollback": "Remove the note if the reviewed content is incorrect.",
   "approval": {
     "required": true,
     "approver": "sales operations"
   }
 }
 ```
+
+`evidence`, `rollback`, and `approval` are optional. When present, `evidence`
+must be an array of non-empty strings, `rollback` must be a non-empty string,
+and `approval` must be an object with a boolean `required` field and an
+optional non-empty string `approver`. Nested values are validated by type;
+for example, `"required": "false"` is invalid and is not treated as `true`.
 
 ## Risk Levels
 

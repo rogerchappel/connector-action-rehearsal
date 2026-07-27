@@ -22,6 +22,10 @@ export function parseFixture(value: unknown): ActionFixture {
     throw new Error("Fixture payload must be an object.");
   }
 
+  const evidence = parseEvidence(value);
+  const rollback = parseOptionalString(value, "rollback");
+  const approval = parseApproval(value);
+
   return {
     id: asString(value.id, "id"),
     connector: asString(value.connector, "connector"),
@@ -30,14 +34,43 @@ export function parseFixture(value: unknown): ActionFixture {
     target: asString(value.target, "target"),
     reason: asString(value.reason, "reason"),
     payload: value.payload,
-    evidence: Array.isArray(value.evidence) ? value.evidence.map(String) : [],
-    rollback: typeof value.rollback === "string" ? value.rollback : undefined,
-    approval: isRecord(value.approval)
-      ? {
-          required: Boolean(value.approval.required),
-          approver: typeof value.approval.approver === "string" ? value.approval.approver : undefined
-        }
-      : undefined
+    evidence,
+    rollback,
+    approval
+  };
+}
+
+function parseEvidence(value: Record<string, unknown>): string[] {
+  if (!("evidence" in value)) {
+    return [];
+  }
+  if (!Array.isArray(value.evidence)) {
+    throw new Error("Fixture field evidence must be an array of non-empty strings.");
+  }
+  return value.evidence.map((entry, index) => asString(entry, `evidence[${index}]`));
+}
+
+function parseOptionalString(value: Record<string, unknown>, key: string, field = key): string | undefined {
+  if (!(key in value)) {
+    return undefined;
+  }
+  return asString(value[key], field);
+}
+
+function parseApproval(value: Record<string, unknown>): ActionFixture["approval"] {
+  if (!("approval" in value)) {
+    return undefined;
+  }
+  if (!isRecord(value.approval)) {
+    throw new Error("Fixture field approval must be an object.");
+  }
+  if (typeof value.approval.required !== "boolean") {
+    throw new Error("Fixture field approval.required must be a boolean.");
+  }
+
+  return {
+    required: value.approval.required,
+    approver: parseOptionalString(value.approval, "approver", "approval.approver")
   };
 }
 
