@@ -16,6 +16,25 @@ This skill is rehearsal-only. It reads local fixtures and prints approval plans.
 
 Any `write-after-approval` action requires explicit user approval outside this CLI and should name `approval.approver` in the fixture. Any `forbidden` action must be redesigned and must not be executed from the generated plan.
 
+## Fixture Metadata
+
+The optional nested metadata shape is:
+
+```json
+{
+  "evidence": ["notes/example.md"],
+  "rollback": "Remove the draft.",
+  "approval": {
+    "required": false,
+    "approver": "reviewer name"
+  }
+}
+```
+
+Every evidence entry, `rollback`, and `approval.approver` must be a non-empty
+string. `approval.required` must be a JSON boolean, not a string or number.
+The `evidence`, `rollback`, and `approval` fields may be omitted.
+
 ## Examples
 
 ```bash
