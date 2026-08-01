@@ -52,6 +52,9 @@ must be an array of non-empty strings, `rollback` must be a non-empty string,
 and `approval` must be an object with a boolean `required` field and an
 optional non-empty string `approver`. Nested values are validated by type;
 for example, `"required": "false"` is invalid and is not treated as `true`.
+Setting `approval.required` to `true` gates every risk level. For a read-only
+action, the generated prompt and checklist request approval for connector read
+access; they do not imply that a write is proposed.
 
 ## Risk Levels
 
@@ -77,7 +80,7 @@ Use `--fail-on-validation error` to make malformed fixtures fail CI while still 
 
 ## Reviewer Checklist
 
-Every plan includes a reviewer checklist with four gates:
+Every plan includes a reviewer checklist with five gates:
 
 - payload validation
 - evidence trace
