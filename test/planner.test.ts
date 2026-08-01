@@ -114,6 +114,33 @@ test("keeps contact lookup read-only", async () => {
   assert.deepEqual(plan.validation, []);
 });
 
+test("uses read access language when a contact lookup explicitly requires approval", async () => {
+  const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/contact-lookup-approval.json"), "utf8")));
+  const plan = createPlan(fixture);
+  const approvalBoundary = plan.checklist.find((item) => item.label === "Approval boundary");
+
+  assert.equal(plan.risk, "read-only");
+  assert.equal(plan.approvalRequired, true);
+  assert.equal(plan.decision, "approval-required");
+  assert.match(plan.approvalPrompt, /Approve read access/);
+  assert.doesNotMatch(plan.approvalPrompt, /writ/i);
+  assert.equal(approvalBoundary?.status, "required");
+  assert.match(approvalBoundary?.detail ?? "", /read-only connector access/);
+  assert.doesNotMatch(approvalBoundary?.detail ?? "", /writ/i);
+});
+
+test("CLI renders explicit read approval accurately in Markdown and JSON", () => {
+  for (const format of ["markdown", "json"]) {
+    const result = runCli("plan", "fixtures/contact-lookup-approval.json", "--format", format, "--fail-on", "forbidden");
+
+    assert.equal(result.status, 0, format);
+    assert.match(result.stdout, /Approve read access/, format);
+    assert.match(result.stdout, /read-only connector access/, format);
+    assert.doesNotMatch(result.stdout, /before writing|connector write|write is proposed/i, format);
+    assert.equal(result.stderr, "", format);
+  }
+});
+
 test("blocks forbidden connector routes", async () => {
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/forbidden.json"), "utf8")));
   const plan = createPlan(fixture);

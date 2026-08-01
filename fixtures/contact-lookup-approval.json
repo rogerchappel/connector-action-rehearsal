@@ -1,0 +1,16 @@
+{
+  "id": "contact-lookup-approval-001",
+  "connector": "hubspot-contacts",
+  "action": "contact_lookup",
+  "actor": "agent",
+  "target": "ExampleCo contacts",
+  "reason": "Confirm the account contacts before preparing a handoff.",
+  "payload": {
+    "query": "company:ExampleCo"
+  },
+  "evidence": ["notes/example.md"],
+  "approval": {
+    "required": true,
+    "approver": "sales operations"
+  }
+}
