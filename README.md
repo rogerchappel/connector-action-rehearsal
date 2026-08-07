@@ -67,6 +67,12 @@ access; they do not imply that a write is proposed.
 
 The planner checks required payload fields for each supported action and includes validation diagnostics in Markdown and JSON output.
 
+Markdown output renders fixture-controlled text as literal inline content: line
+breaks are folded to spaces and Markdown punctuation is backslash-escaped. This
+keeps headings, lists, and checklist or validation table rows structurally
+stable while preserving the text for reviewers. The fenced payload preview is
+serialized separately as formatted, valid JSON and is not Markdown-escaped.
+
 - `contact_lookup`: `query`
 - `crm_note`: `title`, `body`
 - `task_create`: `title`, `assignee`, `due`
