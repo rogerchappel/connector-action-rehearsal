@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { createPlan } from "../src/planner.js";
 import { parseFixture } from "../src/schema.js";
+import { formatMarkdown } from "../src/format.js";
 
 function runCli(...args: string[]) {
   return spawnSync(process.execPath, ["dist/src/cli.js", ...args], { encoding: "utf8" });
@@ -132,13 +133,55 @@ test("uses read access language when a contact lookup explicitly requires approv
 test("CLI renders explicit read approval accurately in Markdown and JSON", () => {
   for (const format of ["markdown", "json"]) {
     const result = runCli("plan", "fixtures/contact-lookup-approval.json", "--format", format, "--fail-on", "forbidden");
+    const semanticOutput = format === "markdown" ? result.stdout.replace(/\\([\\`*{}\[\]()<>#+\-.!_|])/g, "$1") : result.stdout;
 
     assert.equal(result.status, 0, format);
-    assert.match(result.stdout, /Approve read access/, format);
-    assert.match(result.stdout, /read-only connector access/, format);
-    assert.doesNotMatch(result.stdout, /before writing|connector write|write is proposed/i, format);
+    assert.match(semanticOutput, /Approve read access/, format);
+    assert.match(semanticOutput, /read-only connector access/, format);
+    assert.doesNotMatch(semanticOutput, /before writing|connector write|write is proposed/i, format);
     assert.equal(result.stderr, "", format);
   }
+});
+
+test("Markdown output keeps fixture text inside its intended structure", () => {
+  const fixture = parseFixture({
+    ...minimalFixture,
+    id: "fixture|#1",
+    connector: "example|connector",
+    actor: "agent\n## Injected heading",
+    target: "Example *target* | priority",
+    reason: "Review [details](https://example.test)\n- misleading item",
+    evidence: ["proof.md\n- misleading evidence", "table|cell"],
+    rollback: "Undo *carefully*\n## not a section",
+    approval: { required: true, approver: "reviewer|owner\n- not a list item" }
+  });
+  const plan = createPlan(fixture);
+  plan.checklist[0] = {
+    status: "blocked",
+    label: "Gate|label\n## heading",
+    detail: "Keep *one* table row\n| extra | cells |"
+  };
+  plan.validation.push({
+    severity: "warning",
+    field: "payload|query\n## heading",
+    message: "Expected [text]\n| extra | cells |"
+  });
+
+  const markdown = formatMarkdown(plan);
+  const semanticMarkdown = markdown.replace(/\\([\\`*{}\[\]()<>#+\-.!_|])/g, "$1");
+
+  assert.deepEqual(
+    markdown.match(/^## .+$/gm),
+    ["## Summary", "## Approval Prompt", "## Payload Preview", "## Rollback", "## Evidence", "## Reviewer Checklist", "## Validation"]
+  );
+  assert.equal(markdown.match(/^- /gm)?.length, 2);
+  assert.equal(markdown.match(/^\| /gm)?.length, 8);
+  assert.match(semanticMarkdown, /agent ## Injected heading proposes contact_lookup/);
+  assert.ok(markdown.includes("Review \\[details\\]\\(https://example\\.test\\) \\- misleading item"));
+  assert.ok(markdown.includes("- proof\\.md \\- misleading evidence"));
+  assert.ok(markdown.includes("reviewer\\|owner \\- not a list item"));
+  assert.ok(markdown.includes("| blocked | Gate\\|label \\#\\# heading | Keep \\*one\\* table row \\| extra \\| cells \\| |"));
+  assert.deepEqual(JSON.parse(markdown.match(/```json\n([\s\S]*?)\n```/)?.[1] ?? ""), fixture.payload);
 });
 
 test("blocks forbidden connector routes", async () => {
