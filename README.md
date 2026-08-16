@@ -4,10 +4,23 @@
 
 ## Quickstart
 
+Until a registry release is available, build and install the package tarball
+from a clean checkout into a disposable local prefix:
+
 ```bash
-npm install
+npm ci
 npm run release:check
+mkdir -p .local
+npm pack --pack-destination .local
+npm install --prefix .local ./.local/connector-action-rehearsal-*.tgz
+./.local/node_modules/.bin/connector-action-rehearsal plan fixtures/meeting-followup.json --format markdown
 ```
+
+The examples below use `connector-action-rehearsal` for readability. Before a
+registry release, invoke the concrete `.local/node_modules/.bin/connector-action-rehearsal`
+path shown above. After a future npm registry release, a global or project-local
+registry install may place that command on `PATH`; no registry package is
+required by the pre-release workflow.
 
 ## CLI
 
@@ -117,6 +130,7 @@ npm run package:smoke
 npm run release:check
 ```
 
-`npm run package:smoke` builds the package, dry-runs `npm pack`, and asserts
-that the CLI, planner runtime, fixtures, skill file, docs, README, and license
-and security policy are present in the tarball.
+`npm run package:smoke` builds and packs the package in a disposable directory,
+asserts the expected release files, installs the tarball into a local prefix,
+and executes the installed `.bin` command. It verifies representative plan
+output plus the help text and its documented exit status.

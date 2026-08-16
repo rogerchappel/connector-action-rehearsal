@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Document a copy/pasteable pre-release tarball install path and verify the
+  installed CLI entry point during package smoke checks.
 - Describe explicit approval for read-only actions as approval for connector
   read access in generated prompts and checklists, without implying a write.
 - Reject unknown CLI options and missing or invalid option values with a usage
