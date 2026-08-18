@@ -67,7 +67,9 @@ optional non-empty string `approver`. Nested values are validated by type;
 for example, `"required": "false"` is invalid and is not treated as `true`.
 Setting `approval.required` to `true` gates every risk level. For a read-only
 action, the generated prompt and checklist request approval for connector read
-access; they do not imply that a write is proposed.
+access; they do not imply that a write is proposed. For a draft-only action,
+they request approval to review the proposed draft and state that no external
+write or send is approved.
 
 ## Risk Levels
 

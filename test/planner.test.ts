@@ -143,6 +143,35 @@ test("CLI renders explicit read approval accurately in Markdown and JSON", () =>
   }
 });
 
+test("uses draft-review language when a meeting follow-up explicitly requires approval", async () => {
+  const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/meeting-followup-approval.json"), "utf8")));
+  const plan = createPlan(fixture);
+  const approvalBoundary = plan.checklist.find((item) => item.label === "Approval boundary");
+
+  assert.equal(plan.risk, "draft-only");
+  assert.equal(plan.approvalRequired, true);
+  assert.equal(plan.decision, "approval-required");
+  assert.match(plan.approvalPrompt, /Approve review of the proposed meeting_followup draft/);
+  assert.match(plan.approvalPrompt, /No external write or send is approved/);
+  assert.doesNotMatch(plan.approvalPrompt, /before writing|writing to/i);
+  assert.equal(approvalBoundary?.status, "required");
+  assert.match(approvalBoundary?.detail ?? "", /before draft review/);
+  assert.match(approvalBoundary?.detail ?? "", /no external write or send is approved/i);
+});
+
+test("CLI renders explicit draft approval accurately in Markdown and JSON", () => {
+  for (const format of ["markdown", "json"]) {
+    const result = runCli("plan", "fixtures/meeting-followup-approval.json", "--format", format, "--fail-on", "forbidden");
+    const semanticOutput = format === "markdown" ? result.stdout.replace(/\\([\\`*{}\[\]()<>#+\-.!_|])/g, "$1") : result.stdout;
+
+    assert.equal(result.status, 0, format);
+    assert.match(semanticOutput, /Approve review of the proposed meeting_followup draft/, format);
+    assert.match(semanticOutput, /No external write or send is approved/i, format);
+    assert.doesNotMatch(semanticOutput, /before writing|writing to|connector write/i, format);
+    assert.equal(result.stderr, "", format);
+  }
+});
+
 test("Markdown output keeps fixture text inside its intended structure", () => {
   const fixture = parseFixture({
     ...minimalFixture,

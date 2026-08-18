@@ -108,6 +108,9 @@ function buildApprovalPrompt(fixture: ActionFixture, risk: Risk, approvalRequire
   if (risk === "read-only") {
     return `Approve read access to ${fixture.connector}: ${fixture.action} for ${fixture.target}. Approver: ${approver}.`;
   }
+  if (risk === "draft-only") {
+    return `Approve review of the proposed ${fixture.action} draft for ${fixture.target}. No external write or send is approved. Approver: ${approver}.`;
+  }
   return `Approve before writing to ${fixture.connector}: ${fixture.action} for ${fixture.target}. Approver: ${approver}. Rollback note: ${rollback}`;
 }
 
@@ -140,7 +143,9 @@ function buildChecklist(
           : approvalRequired
             ? risk === "read-only"
               ? "Collect explicit human approval before read-only connector access."
-              : "Collect explicit human approval before any connector write."
+              : risk === "draft-only"
+                ? "Collect explicit human approval before draft review; no external write or send is approved."
+                : "Collect explicit human approval before any connector write."
             : risk === "read-only"
               ? "Read-only connector inspection does not require write approval."
               : "No external write is approved by this draft-only plan."
