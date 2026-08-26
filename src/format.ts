@@ -7,7 +7,7 @@ export function formatJson(plan: RehearsalPlan): string {
 function markdownText(value: string): string {
   return value
     .replace(/\s*[\r\n]+\s*/g, " ")
-    .replace(/([\\`*{}\[\]()<>#+\-.!_|])/g, "\\$1");
+    .replace(/([\\`*{}\[\]()<>#+\-.!_|~])/g, "\\$1");
 }
 
 export function formatMarkdown(plan: RehearsalPlan): string {
