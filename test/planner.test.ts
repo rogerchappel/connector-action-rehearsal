@@ -176,19 +176,19 @@ test("Markdown output keeps fixture text inside its intended structure", () => {
   const fixture = parseFixture({
     ...minimalFixture,
     id: "fixture|#1",
-    connector: "example|connector",
+    connector: "example|connector ~~strike~~",
     actor: "agent\n## Injected heading",
     target: "Example *target* | priority",
-    reason: "Review [details](https://example.test)\n- misleading item",
-    evidence: ["proof.md\n- misleading evidence", "table|cell"],
+    reason: "Review [details](https://example.test)\n- misleading item ~~summary-struck~~",
+    evidence: ["proof.md\n- misleading evidence ~~struck~~", "table|cell"],
     rollback: "Undo *carefully*\n## not a section",
     approval: { required: true, approver: "reviewer|owner\n- not a list item" }
   });
   const plan = createPlan(fixture);
   plan.checklist[0] = {
     status: "blocked",
-    label: "Gate|label\n## heading",
-    detail: "Keep *one* table row\n| extra | cells |"
+    label: "Gate|label\n## heading ~~strike~~",
+    detail: "Keep *one* table row\n| extra | cells | ~~struck~~"
   };
   plan.validation.push({
     severity: "warning",
@@ -197,7 +197,7 @@ test("Markdown output keeps fixture text inside its intended structure", () => {
   });
 
   const markdown = formatMarkdown(plan);
-  const semanticMarkdown = markdown.replace(/\\([\\`*{}\[\]()<>#+\-.!_|])/g, "$1");
+  const semanticMarkdown = markdown.replace(/\\([\\`*{}\[\]()<>#+\-.!_|~])/g, "$1");
 
   assert.deepEqual(
     markdown.match(/^## .+$/gm),
@@ -209,7 +209,11 @@ test("Markdown output keeps fixture text inside its intended structure", () => {
   assert.ok(markdown.includes("Review \\[details\\]\\(https://example\\.test\\) \\- misleading item"));
   assert.ok(markdown.includes("- proof\\.md \\- misleading evidence"));
   assert.ok(markdown.includes("reviewer\\|owner \\- not a list item"));
-  assert.ok(markdown.includes("| blocked | Gate\\|label \\#\\# heading | Keep \\*one\\* table row \\| extra \\| cells \\| |"));
+  assert.ok(markdown.includes("| blocked | Gate\\|label \\#\\# heading \\~\\~strike\\~\\~ | Keep \\*one\\* table row \\| extra \\| cells \\| \\~\\~struck\\~\\~ |"));
+  assert.match(semanticMarkdown, /~~summary-struck~~/);
+  assert.match(semanticMarkdown, /~~struck~~/);
+  assert.ok(markdown.includes("\\~\\~strike\\~\\~"));
+  assert.doesNotMatch(markdown, /~~/);
   assert.deepEqual(JSON.parse(markdown.match(/```json\n([\s\S]*?)\n```/)?.[1] ?? ""), fixture.payload);
 });
 
