@@ -2,6 +2,8 @@
 
 `connector-action-rehearsal` turns connector write intentions into deterministic dry-run approval plans. It is designed for agent builders who need local evidence before writing to CRMs, project managers, inboxes, or publishing surfaces.
 
+Node.js 22 or newer is required. CI verifies the package on Node.js 22 and 24.
+
 ## Quickstart
 
 Until a registry release is available, build and install the package tarball
