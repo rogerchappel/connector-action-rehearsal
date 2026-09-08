@@ -34,8 +34,11 @@
     "cli"
   ],
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
-    "@types/node": "^20.14.10",
+    "@types/node": "^22.0.0",
     "typescript": "^5.5.3"
   },
   "repository": {
