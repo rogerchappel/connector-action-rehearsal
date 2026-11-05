@@ -26,7 +26,7 @@ test("validate.sh completes when each validation step succeeds", async () => {
   });
   assert.equal(result.status, 0, result.stderr);
   assert.deepEqual((await readFile(log, "utf8")).trim().split("\n"), [
-    "test", "run smoke", "dist/src/cli.js plan fixtures/crm-note.json --format json --fail-on forbidden", "run package:smoke"
+    "run check", "test", "run smoke", "dist/src/cli.js plan fixtures/crm-note.json --format json --fail-on forbidden", "run package:smoke"
   ]);
 });
 
@@ -45,5 +45,5 @@ test("validate.sh stops at the first failing validation command", async () => {
     env: { ...process.env, PATH: `${join(dir, "bin")}:${process.env.PATH}` }
   });
   assert.equal(result.status, 17);
-  assert.deepEqual((await readFile(log, "utf8")).trim().split("\n"), ["test"]);
+  assert.deepEqual((await readFile(log, "utf8")).trim().split("\n"), ["run check", "test"]);
 });
