@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const script = resolve("scripts/validate.sh");
+const script = resolve(import.meta.dirname, "../../scripts/validate.sh");
 
 test("validate.sh completes when each validation step succeeds", async () => {
   const dir = await mkdtemp(join(tmpdir(), "validate-success-"));
