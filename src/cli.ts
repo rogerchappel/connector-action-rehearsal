@@ -5,6 +5,7 @@ import { formatJson, formatMarkdown } from "./format.js";
 import { createPlan } from "./planner.js";
 import { parseFixture } from "./schema.js";
 import type { Risk } from "./types.js";
+import { nodeVersionError } from "./runtime.js";
 
 interface CliOptions {
   command?: string;
@@ -17,6 +18,11 @@ interface CliOptions {
 class CliUsageError extends Error {}
 
 async function main(argv: string[]): Promise<number> {
+  const runtimeError = nodeVersionError(process.version);
+  if (runtimeError) {
+    process.stderr.write(`${runtimeError}\n`);
+    return 1;
+  }
   let options: CliOptions;
   try {
     options = parseArgs(argv);
