@@ -36,9 +36,14 @@ test("preserves valid nested fixture metadata", () => {
     approval: { required: false, approver: " reviewer " }
   });
 
-  assert.deepEqual(fixture.evidence, [" notes/example.md "]);
+  assert.deepEqual(fixture.evidence, ["notes/example.md"]);
   assert.equal(fixture.rollback, " Remove the draft. ");
   assert.deepEqual(fixture.approval, { required: false, approver: " reviewer " });
+});
+
+test("trims surrounding whitespace from evidence entries", () => {
+  const fixture = parseFixture({ ...minimalFixture, evidence: [" notes/example.md "] });
+  assert.deepEqual(fixture.evidence, ["notes/example.md"]);
 });
 
 test("rejects malformed evidence metadata", () => {
