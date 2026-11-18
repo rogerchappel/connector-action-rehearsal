@@ -47,7 +47,7 @@ function parseEvidence(value: Record<string, unknown>): string[] {
   if (!Array.isArray(value.evidence)) {
     throw new Error("Fixture field evidence must be an array of non-empty strings.");
   }
-  return value.evidence.map((entry, index) => asString(entry, `evidence[${index}]`));
+  return value.evidence.map((entry, index) => asString(entry, `evidence[${index}]`).trim());
 }
 
 function parseOptionalString(value: Record<string, unknown>, key: string, field = key): string | undefined {
