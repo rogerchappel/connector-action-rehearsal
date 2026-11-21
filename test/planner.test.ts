@@ -242,6 +242,16 @@ test("blocks uppercase and mixed-case forbidden connector routes", async () => {
   }
 });
 
+test("does not flag benign connector identifiers containing forbidden terms", async () => {
+  const baseFixture = JSON.parse(await readFile(resolve("fixtures/project-update-missing-approver.json"), "utf8"));
+
+  for (const connector of ["payment-chargeback", "credential-storefront", "delete-production-audit"]) {
+    const plan = createPlan(parseFixture({ ...baseFixture, connector }));
+    assert.equal(plan.risk, "write-after-approval", connector);
+    assert.equal(plan.decision, "approval-required", connector);
+  }
+});
+
 test("validates task creation payloads", async () => {
   const fixture = parseFixture(JSON.parse(await readFile(resolve("fixtures/task-create.json"), "utf8")));
   const plan = createPlan(fixture);
