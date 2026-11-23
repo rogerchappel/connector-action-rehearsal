@@ -28,5 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # This single fail-fast entry point covers type checking, tests/build,
+      # CLI smoke fixtures, and the packed-package installation smoke test.
       - name: Run release check
         run: npm run release:check
