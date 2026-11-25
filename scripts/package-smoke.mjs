@@ -54,11 +54,13 @@ try {
   assert.match(plan.stdout, /# Connector Action Rehearsal/);
   assert.match(plan.stdout, /Risk: draft\\-only/);
   assert.equal(plan.stderr, "");
+  assert.equal(plan.error, undefined, `Installed CLI could not be executed: ${plan.error?.message}`);
 
   const help = spawnSync(bin, [], { encoding: "utf8" });
   assert.equal(help.status, 2);
   assert.equal(help.stdout, "");
   assert.match(help.stderr, /Usage: connector-action-rehearsal plan/);
+  assert.equal(help.error, undefined, `Installed CLI help could not be executed: ${help.error?.message}`);
 
   console.log(
     `package smoke ok: installed ${pack.filename}, ran its CLI plan, and verified help exit ${help.status}`
